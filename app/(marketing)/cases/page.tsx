@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
 
 export const metadata = {
   title: "客户案例 - UserAI",

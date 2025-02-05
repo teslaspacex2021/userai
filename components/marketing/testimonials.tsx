@@ -1,4 +1,3 @@
-import Image from "next/image"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { testimonials } from "@/config/marketing"

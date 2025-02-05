@@ -1,6 +1,3 @@
-import { DashboardNav } from "./nav-links"
-import { UserNav } from "./user-nav"
-
 export function Sidebar() {
   return (
     <aside className="w-64 border-r bg-muted/40">

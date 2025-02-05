@@ -1,9 +1,7 @@
 import { type ReactNode } from "react"
-import Link from "next/link"
 import { NavMain } from "@/components/marketing/nav-main"
 import { Footer } from "@/components/marketing/footer"
 import { marketingConfig } from "@/config/marketing"
-import { cn } from "@/lib/utils"
 
 interface MarketingLayoutProps {
   children: ReactNode
