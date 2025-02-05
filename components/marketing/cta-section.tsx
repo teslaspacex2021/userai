@@ -7,7 +7,7 @@ export function CTASection() {
       <div className="flex flex-col items-center gap-4 rounded-lg bg-muted px-6 py-16 text-center">
         <h2 className="text-3xl font-bold">准备开始了吗？</h2>
         <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-lg">
-          立即注册，免费体验我们的服务。
+          立即体验我们的服务。
         </p>
         <div className="space-x-4">
           <Link href="/login">

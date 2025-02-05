@@ -19,8 +19,8 @@ const plans = [
       "邮件支持",
       "1个用户账号",
     ],
-    cta: "开始免费试用",
-    href: "/register?plan=basic",
+    cta: "开始使用",
+    href: "/login",
   },
   {
     name: "专业版",
@@ -35,8 +35,8 @@ const plans = [
       "自定义报表",
       "API访问",
     ],
-    cta: "开始免费试用",
-    href: "/register?plan=pro",
+    cta: "开始使用",
+    href: "/login",
     popular: true,
   },
   {
@@ -200,12 +200,12 @@ export default function PricingPage() {
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link href="/register">
+              <Link href="/login">
                 <Button
                   size="lg"
                   className="h-12 px-8 bg-white text-primary hover:bg-white/90"
                 >
-                  免费开始使用
+                  开始使用
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
