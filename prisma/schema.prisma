@@ -1,0 +1,134 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  name                  String?
+  email                 String    @unique
+  emailVerified         DateTime?
+  password              String    // 重命名为password
+  image                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  verified              Boolean   @default(false)
+  verificationToken     String?
+  verificationCode      String?
+  resetPasswordToken    String?
+  resetPasswordExpiration DateTime?
+  lastLogin             DateTime?
+  
+  websites              Website[]
+  socialAccounts        SocialAccount[]
+  socialPosts           SocialPost[]
+  systemLogs            SystemLog[]
+  orders                Order[]
+  role                  String    @default("user") // user, admin, manager
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 网站模板表
+model Template {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  thumbnail   String?   // 模板缩略图
+  price       Float
+  category    String    // 模板分类
+  features    String[]  // 模板特性
+  websites    Website[] // 关联的网站
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// 用户网站表
+model Website {
+  id           Int      @id @default(autoincrement())
+  name         String
+  domain       String?  @unique
+  description  String?
+  templateId   Int
+  template     Template @relation(fields: [templateId], references: [id])
+  userId       String   // 改为 String 类型，匹配 User.id
+  user         User     @relation(fields: [userId], references: [id])
+  status       String   @default("pending") // pending, active, suspended
+  settings     Json?    // 网站设置
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// 社交媒体账号表
+model SocialAccount {
+  id            Int      @id @default(autoincrement())
+  userId        String   // 改为 String 类型
+  user          User     @relation(fields: [userId], references: [id])
+  platform      String   // facebook, twitter, instagram etc
+  accountName   String
+  accessToken   String
+  refreshToken  String?
+  tokenExpiry   DateTime?
+  lastSyncedAt  DateTime?
+  posts         SocialPost[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  @@unique([userId, platform, accountName])
+}
+
+// 社交媒体发布表
+model SocialPost {
+  id              Int           @id @default(autoincrement())
+  userId          String        // 改为 String 类型
+  user            User          @relation(fields: [userId], references: [id])
+  socialAccountId Int
+  socialAccount   SocialAccount @relation(fields: [socialAccountId], references: [id])
+  content         String
+  mediaUrls       String[]      // 媒体文件URL数组
+  scheduledFor    DateTime?     // 计划发布时间
+  publishedAt     DateTime?     // 实际发布时间
+  status          String        @default("draft") // draft, scheduled, published, failed
+  platformPostId  String?       // 平台返回的帖子ID
+  analytics       Json?         // 帖子分析数据
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @default(now())
+}
+
+// 系统日志表
+model SystemLog {
+  id        Int      @id @default(autoincrement())
+  userId    String?  // 改为 String 类型
+  user      User?    @relation(fields: [userId], references: [id])
+  type      String   // info, warning, error
+  action    String   // login, post, settings_update etc
+  details   Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+
+// 支付订单表
+model Order {
+  id            Int      @id @default(autoincrement())
+  userId        String   // 改为 String 类型
+  user          User     @relation(fields: [userId], references: [id])
+  amount        Float
+  currency      String   @default("USD")
+  status        String   // pending, completed, failed, refunded
+  paymentMethod String
+  paymentId     String?  // 支付平台返回的ID
+  items         Json     // 订单项目详情
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+}

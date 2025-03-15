@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { Menu, X, Sun, Moon } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Menu, X, Sun, Moon, LogOut } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { NavItem } from "@/types"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -31,7 +31,30 @@ export function NavMain({ items }: NavMainProps) {
     phone: "",
     message: ""
   })
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+
+  // 检查用户是否已登录
+  useEffect(() => {
+    // 简单检查是否存在认证Cookie
+    const checkLoginStatus = () => {
+      const cookies = document.cookie.split(';')
+      const hasAuthCookie = cookies.some(cookie => 
+        cookie.trim().startsWith('auth_token=') || 
+        cookie.trim().startsWith('userSession=')
+      )
+      setIsLoggedIn(hasAuthCookie)
+    }
+    
+    checkLoginStatus()
+    // 监听存储事件，以便在登录/登出状态变化时更新
+    window.addEventListener('storage', checkLoginStatus)
+    
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus)
+    }
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
@@ -53,6 +76,26 @@ export function NavMain({ items }: NavMainProps) {
       phone: "",
       message: ""
     })
+  }
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      if (response.ok) {
+        // 触发存储事件以更新登录状态
+        window.localStorage.setItem('logout', Date.now().toString())
+        // 重定向到登录页面
+        router.push('/login')
+      }
+    } catch (error) {
+      console.error('登出失败:', error)
+    }
   }
 
   return (
@@ -94,9 +137,18 @@ export function NavMain({ items }: NavMainProps) {
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">切换主题</span>
           </Button>
+          
+          {isLoggedIn ? (
+            <Button variant="ghost" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              登出
+            </Button>
+          ) : (
           <Link href="/login">
             <Button variant="ghost">登录</Button>
           </Link>
+          )}
+          
           <Dialog>
             <DialogTrigger asChild>
               <Button>联系我们</Button>
@@ -204,11 +256,18 @@ export function NavMain({ items }: NavMainProps) {
                 </Link>
               ))}
               <div className="pt-4 border-t space-y-4">
+                {isLoggedIn ? (
+                  <Button variant="ghost" className="w-full justify-center" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    登出
+                  </Button>
+                ) : (
                 <Link href="/login" className="block">
                   <Button variant="ghost" className="w-full justify-center">
                     登录
                   </Button>
                 </Link>
+                )}
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button className="w-full">联系我们</Button>
